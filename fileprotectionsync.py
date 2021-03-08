@@ -6,6 +6,7 @@
 #
 # @author Betacommand
 # @author Krinkle
+# @author Legoktm
 # @license CC-BY-SA 3.0
 from __future__ import absolute_import, print_function
 import sys
@@ -18,22 +19,34 @@ except ImportError:
     from urllib import urlencode
     from urllib2 import urlopen
 
+import yaml
+
 import fileprotectionsync_config as config
 import pywikibot
 commons_site = pywikibot.Site('commons', 'commons')
 
 
+def build_wikitext(images):
+    wt = config.wikitext_start
+    # alphasort and remove duplicates
+    for image in sorted(set(images)):
+        wt += 'File:%s\n' % image
+    wt += config.wikitext_end
+
+    return wt
+
+
 def main():
     for wiki in config.wikis:
-        wt = config.wikitext_start
         mpimages = []
         for pg in wiki['sourcepages']:
             mpimages.extend(get_images(wiki['sourcewiki'], pg))
-        mpimages = sorted(set(mpimages))
-        for cimage in mpimages:
-            wt += 'File:%s\n' % cimage
-        wt += config.wikitext_end
+        wt = build_wikitext(mpimages)
         pywikibot.Page(commons_site, wiki['targetpage']).put(wt, config.editsummary)
+
+    # Wiki logos (T273490)
+    wt = build_wikitext(get_logos())
+    pywikibot.Page(commons_site, 'Commons:Auto-protected files/misc/logos').put(wt, config.editsummary)
 
 
 def get_images(site, title):
@@ -59,5 +72,24 @@ def get_images(site, title):
     return mpimages
 
 
+def get_logos():
+    logos = []
+    req = urlopen("https://noc.wikimedia.org/conf/logos-config.yaml")
+    yaml_resp = req.read().decode('utf-8')
+    data = yaml.safe_load(yaml_resp)
+    for group, sites in data.items():
+        for site, info in sites.items():
+            if not info:
+                continue
+            if 'commons' in info:
+                # Strip "File:" prefix
+                logos.append(info['commons'].split(':', 1)[1])
+            if 'variants' in info:
+                for logo in info['variants'].values():
+                    logos.append(logo.split(':', 1)[1])
+
+    return logos
+
+
 if __name__ == '__main__':
-        main()
+    main()
