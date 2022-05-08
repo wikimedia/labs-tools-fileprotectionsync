@@ -41,7 +41,7 @@ Install pywikibot:
 # (tooluser in ~/)
 $ virtualenv pywikienv -p python3
 $ source ~/pywikienv/bin/activate
-$ pip install pyyaml
+$ pip install pyyaml mwparserfromhell
 $ cd ~/src/pywikibot-core
 $ python setup.py develop
 ```
