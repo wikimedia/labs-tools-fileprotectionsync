@@ -30,6 +30,11 @@ def build_wikitext(images):
     wt = config.wikitext_start
     # alphasort and remove duplicates
     for image in sorted(set(images)):
+        if image == 'War in Ukraine (2022) en.png':
+            continue
+        if image == 'War in Ukraine 2022 - fr.svg':
+            # https://commons.wikimedia.org/w/index.php?title=User_talk:Krinkle&diff=632356246&oldid=628973063
+            continue
         wt += 'File:%s\n' % image
     wt += config.wikitext_end
 
