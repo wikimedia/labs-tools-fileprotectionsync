@@ -26,7 +26,8 @@ import pywikibot
 commons_site = pywikibot.Site('commons', 'commons')
 
 
-def build_wikitext(images):
+def build_wikitext(images, languages):
+    videos = []
     wt = config.wikitext_start
     # alphasort and remove duplicates
     for image in sorted(set(images)):
@@ -36,21 +37,35 @@ def build_wikitext(images):
             # https://commons.wikimedia.org/w/index.php?title=User_talk:Krinkle&diff=632356246&oldid=628973063
             continue
         wt += 'File:%s\n' % image
+        if image.endswith(('.ogv', '.webm', '.mpg', '.mpeg')):
+            videos.append(image)
     wt += config.wikitext_end
+    if videos:
+        wt += """
+
+<div class="mw-collapsible mw-collapsed">
+<div style="font-weight:bold;line-height:1.6;">Subtitles</div>
+<div class="mw-collapsible-content">
+"""
+        for video in videos:
+            for language in languages:
+                wt += '{{TimedText:%s.%s.srt}}\n' % (video, language)
+        wt += '</div></div>'
 
     return wt
 
 
 def main():
+    languages = get_languages()
     for wiki in config.wikis:
         mpimages = []
         for pg in wiki['sourcepages']:
             mpimages.extend(get_images(wiki['sourcewiki'], pg))
-        wt = build_wikitext(mpimages)
+        wt = build_wikitext(mpimages, languages)
         pywikibot.Page(commons_site, wiki['targetpage']).put(wt, config.editsummary)
 
     # Wiki logos (T273490)
-    wt = build_wikitext(get_logos())
+    wt = build_wikitext(get_logos(), languages)
     pywikibot.Page(commons_site, 'Commons:Auto-protected files/misc/logos').put(wt, config.editsummary)
 
 
@@ -75,6 +90,12 @@ def get_images(site, title):
             # Datei:Awesome_collection:_The_Example_(2006).jpg -> Awesome_collection:_The_Example_(2006).jpg
             mpimages.append(image['title'].split(':', 1)[1])
     return mpimages
+
+
+def get_languages():
+    req = urlopen('https://commons.wikimedia.org/w/api.php?action=query&meta=siteinfo&siprop=languages&format=json')
+    data = json.loads(req.read().decode('utf-8'))
+    return [lang['code'] for lang in data['query']['languages']]
 
 
 def get_logos():
