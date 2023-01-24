@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/Krinkle/pywiki-fileprotectionsync.svg?branch=master)](https://travis-ci.org/Krinkle/pywiki-fileprotectionsync)
-
 # pywiki-fileprotectionsync
 
 ## Production
@@ -14,8 +12,8 @@ Fetch code:
 
 ```bash
 # (tooluser in ~/src)
-$ git clone --depth 1 https://github.com/wikimedia/pywikibot-core.git
-$ git clone https://github.com/Krinkle/pywiki-fileprotectionsync.git
+$ git clone --depth 1 --recursive --branch stable https://gerrit.wikimedia.org/r/pywikibot/core pywikibot-core
+$ git clone https://gerrit.wikimedia.org/r/labs/tools/fileprotectionsync
 ```
 
 Configure user:
@@ -49,16 +47,16 @@ $ python setup.py develop
 Configure fileprotectionsync:
 
 ```bash
-# (you in ~/src/pywiki-fileprotectionsync)
+# (you in ~/src/fileprotectionsync)
 $ ln -sf fileprotectionsync_config-prod.py fileprotectionsync_config.py
 
 # (you in ~/)
 $ edit crontab.txt
-0,15,30,45 * * * * /usr/bin/jsub -once -quiet -l release=trusty -mem 500m -N fileprotectionsync $HOME/pywikienv/bin/python $HOME/src/pywiki-fileprotectionsync/fileprotectionsync.py
+0,15,30,45 * * * * /usr/bin/jsub -once -quiet -l release=trusty -mem 500m -N fileprotectionsync $HOME/pywikienv/bin/python $HOME/src/fileprotectionsync/fileprotectionsync.py
 ```
 
 To run it manually:
 
 ```bash
-$ $HOME/pywikienv/bin/python $HOME/src/pywiki-fileprotectionsync/fileprotectionsync.py
+$ $HOME/pywikienv/bin/python $HOME/src/fileprotectionsync/fileprotectionsync.py
 ```
