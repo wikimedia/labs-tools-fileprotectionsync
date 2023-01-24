@@ -101,18 +101,22 @@ def get_languages():
 def get_logos():
     logos = []
     req = urlopen("https://noc.wikimedia.org/conf/logos-config.yaml")
+    logo_type = ['commons', 'commons_wordmark', 'commons_tagline', 'commons_icon']
     yaml_resp = req.read().decode('utf-8')
     data = yaml.safe_load(yaml_resp)
     for group, sites in data.items():
         for site, info in sites.items():
             if not info:
                 continue
-            if 'commons' in info:
-                # Strip "File:" prefix
-                logos.append(info['commons'].split(':', 1)[1])
+            for commons in logo_type:
+                if commons in info:
+                    # Strip "File:" prefix
+                    logos.append(info[commons].split(':', 1)[1])
             if 'variants' in info:
-                for logo in info['variants'].values():
-                    logos.append(logo.split(':', 1)[1])
+                for variant in info['variants'].values():
+                    for commons in logo_type:
+                        if commons in variant:
+                            logos.append(variant[commons].split(':', 1)[1])
 
     return logos
 
