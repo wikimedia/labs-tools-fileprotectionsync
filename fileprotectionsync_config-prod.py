@@ -55,4 +55,9 @@ wikis = [
         'sourcepages': ['صفحۂ_اول'],
         'targetpage': 'Commons:Auto-protected files/wikipedia/ur',
     },
+    {
+        'sourcewiki': 'pt.wikipedia.org',
+        'sourcepages': ['Wikipédia:Página_principal'],
+        'targetpage': 'Commons:Auto-protected files/wikipedia/pt',
+    },
 ]
