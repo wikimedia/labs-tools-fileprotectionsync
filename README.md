@@ -12,7 +12,6 @@ Fetch code:
 
 ```bash
 # (tooluser in ~/src)
-$ git clone --depth 1 --recursive --branch stable https://gerrit.wikimedia.org/r/pywikibot/core pywikibot-core
 $ git clone https://gerrit.wikimedia.org/r/labs/tools/fileprotectionsync
 ```
 
@@ -33,30 +32,36 @@ $ edit ~/.pywikibot/.pwd
 ("<username>", BotPassword("<botname>", "<password>"))
 ```
 
-Install pywikibot:
-
-```bash
-# (tooluser in ~/)
-$ virtualenv pywikienv -p python3
-$ source ~/pywikienv/bin/activate
-$ pip install pyyaml mwparserfromhell
-$ cd ~/src/pywikibot-core
-$ python setup.py develop
-```
-
 Configure fileprotectionsync:
 
 ```bash
 # (you in ~/src/fileprotectionsync)
 $ ln -sf fileprotectionsync_config-prod.py fileprotectionsync_config.py
+```
 
-# (you in ~/)
-$ edit crontab.txt
-0,15,30,45 * * * * /usr/bin/jsub -once -quiet -l release=trusty -mem 500m -N fileprotectionsync $HOME/pywikienv/bin/python $HOME/src/fileprotectionsync/fileprotectionsync.py
+Load jobs:
+
+```bash
+# (tooluser in ~/src/fileprotectionsync)
+$ toolforge jobs load jobs.yaml
+```
+
+This may take some time, as it will wait to finish rebuildng the Python virtual environment.
+To only reload the main fileprotectionsync job:
+
+```bash
+# (tooluser in ~src/fileprotectionsync)
+$ toolforge jobs load jobs.yaml --job fileprotectionsync
 ```
 
 To run it manually:
 
 ```bash
-$ $HOME/pywikienv/bin/python $HOME/src/fileprotectionsync/fileprotectionsync.py
+$ toolforge jobs restart fileprotectionsync
+```
+
+To update dependencies:
+
+```bash
+$ toolforge jobs load ~/src/fileprotectionsync/jobs.yaml --job build-venv
 ```

@@ -1,0 +1,11 @@
+# https://wikitech.wikimedia.org/wiki/Help:Toolforge/Jobs_framework
+- name: build-venv
+  command: "src/fileprotectionsync/build_venv.sh"
+  image: python3.11
+  wait: True
+  emails: onfailure
+- name: fileprotectionsync
+  command: "src/fileprotectionsync/fileprotectionsync.sh"
+  image: python3.11
+  schedule: "*/10 * * * *"
+  emails: onfailure
