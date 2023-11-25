@@ -27,7 +27,7 @@ commons_site = pywikibot.Site('commons', 'commons')
 
 
 def build_wikitext(images, languages):
-    videos = []
+    timed_media = []
     wt = config.wikitext_start
     # alphasort and remove duplicates
     for image in sorted(set(images)):
@@ -37,19 +37,20 @@ def build_wikitext(images, languages):
             # https://commons.wikimedia.org/w/index.php?title=User_talk:Krinkle&diff=632356246&oldid=628973063
             continue
         wt += 'File:%s\n' % image
-        if image.endswith(('.ogv', '.webm', '.mpg', '.mpeg')):
-            videos.append(image)
+        # https://commons.wikimedia.org/wiki/Commons:Project_scope/Allowable_file_types
+        if image.endswith(('.ogv', '.webm', '.mpg', '.mpeg', '.ogg', '.oga', '.mid', '.flac', '.mp3', '.opus')):
+            timed_media.append(image)
     wt += config.wikitext_end
-    if videos:
+    if timed_media:
         wt += """
 
 <div class="mw-collapsible mw-collapsed">
 <div style="font-weight:bold;line-height:1.6;">Subtitles</div>
 <div class="mw-collapsible-content">
 """
-        for video in videos:
+        for name in timed_media:
             for language in languages:
-                wt += '{{TimedText:%s.%s.srt}}\n' % (video, language)
+                wt += '{{TimedText:%s.%s.srt}}\n' % (name, language)
         wt += '</div></div>'
 
     return wt
