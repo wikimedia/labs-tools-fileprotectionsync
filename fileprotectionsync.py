@@ -26,9 +26,9 @@ import pywikibot
 commons_site = pywikibot.Site('commons', 'commons')
 
 
-def build_wikitext(images, languages):
+def build_wikitext(images, languages, preamble):
     timed_media = []
-    wt = config.wikitext_start
+    wt = config.wikitext_start + preamble + '<gallery widths="80" heights="80">\n'
     # alphasort and remove duplicates
     for image in sorted(set(images)):
         if image == 'War in Ukraine (2022) en.png':
@@ -40,7 +40,7 @@ def build_wikitext(images, languages):
         # https://commons.wikimedia.org/wiki/Commons:Project_scope/Allowable_file_types
         if image.endswith(('.ogv', '.webm', '.mpg', '.mpeg', '.ogg', '.oga', '.mid', '.flac', '.mp3', '.opus')):
             timed_media.append(image)
-    wt += config.wikitext_end
+    wt += "</gallery>" + config.wikitext_end
     if timed_media:
         wt += """
 
@@ -56,17 +56,28 @@ def build_wikitext(images, languages):
     return wt
 
 
+def build_preamble(domain: str, pages: list[str]) -> str:
+    text = "Files found on the following pages are automatically protected here:\n"
+    for page in pages:
+        url_form = page.replace(' ', "_")
+        text += f"* [https://{domain}/wiki/{url_form} {page}]\n"
+    return text + "\n"
+
+
 def main():
     languages = get_languages()
     for wiki in config.wikis:
         mpimages = []
         for pg in wiki['sourcepages']:
             mpimages.extend(get_images(wiki['sourcewiki'], pg))
-        wt = build_wikitext(mpimages, languages)
+        preamble = build_preamble(wiki['sourcewiki'], wiki['sourcepages'])
+        wt = build_wikitext(mpimages, languages, preamble)
         pywikibot.Page(commons_site, wiki['targetpage']).put(wt, config.editsummary)
 
     # Wiki logos (T273490)
-    wt = build_wikitext(get_logos(), languages)
+    logos_preamble = "Files found in [https://noc.wikimedia.org/conf/highlight.php?file=logos/config.yaml " \
+                     "logos/config.yaml] are automatically protected here.\n\n"
+    wt = build_wikitext(get_logos(), languages, logos_preamble)
     pywikibot.Page(commons_site, 'Commons:Auto-protected files/misc/logos').put(wt, config.editsummary)
 
 
