@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset>
+	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
+		<exclude name="Generic.Files.LineLength.TooLong" />
+		<exclude name="Generic.PHP.NoSilencedErrors.Discouraged" />
+		<!-- MWCS doesn't support CoversClass. PHPUnit 11 no longer supports @covers. -->
+		<exclude name="MediaWiki.Commenting.MissingCovers.MissingCovers" />
+	</rule>
+
+	<file>.</file>
+	<arg name="encoding" value="UTF-8"/>
+	<arg name="extensions" value="php"/>
+</ruleset>

@@ -1,3 +1,6 @@
-*.pyc
-/.tox
-/fileprotectionsync_config.py
+/coverage/
+/vendor/
+/.phpunit.result.cache
+/auth.json
+/auth.*.json
+/composer.lock

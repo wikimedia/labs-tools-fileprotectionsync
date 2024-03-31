@@ -1,0 +1,9 @@
+#!/usr/bin/env php
+<?php
+
+use Krinkle\FileProtectionSync\FileProtectionSyncBot;
+
+require_once __DIR__ . '/../src/FileProtectionSyncBot.php';
+
+$bot = FileProtectionSyncBot::newFromCli( $argv );
+$bot->execute();

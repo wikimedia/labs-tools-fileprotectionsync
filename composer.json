@@ -1,0 +1,40 @@
+{
+	"require": {
+		"php": ">=8.2",
+		"ext-curl": "*",
+		"ext-yaml": "*"
+	},
+	"require-dev": {
+		"mediawiki/mediawiki-codesniffer": "*",
+		"mediawiki/mediawiki-phan-config": "^0.14.0",
+		"mediawiki/minus-x": "1.1.1",
+		"php-parallel-lint/php-parallel-lint": "^1.3",
+		"phpunit/phpunit": "^11.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"Krinkle\\FileProtectionSync\\": "src/"
+		}
+	},
+	"scripts": {
+		"test": [
+			"parallel-lint . --exclude vendor",
+			"phpunit",
+			"@phpcs",
+			"@phan",
+			"minus-x check ."
+		],
+		"cover": "phpunit --coverage-html coverage",
+		"fix": [
+			"minus-x fix .",
+			"phpcbf"
+		],
+		"phan": "phan --allow-polyfill-parser",
+		"phpcs": "phpcs -sp"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}
