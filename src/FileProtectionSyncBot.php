@@ -90,6 +90,10 @@ class FileProtectionSyncBot {
 			$this->edit( $wiki['targetpage'], $text, $this->config['editsummary'] );
 		}
 
+		if ( !function_exists( 'yaml_parse' ) ) {
+			// T361457
+			return;
+		}
 		// Wiki logos (T273490)
 		$logos = $this->getLogos();
 		$preamble = "Files found in [https://noc.wikimedia.org/conf/highlight.php?file=logos/config.yaml logos/config.yaml] are automatically protected here.\n";
