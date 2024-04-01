@@ -3,6 +3,7 @@ namespace Krinkle\FileProtectionSync;
 
 use RuntimeException;
 use SensitiveParameter;
+use yaml_parse;
 
 class FileProtectionSyncBot {
 	/* Never protect these files. */
@@ -61,6 +62,7 @@ class FileProtectionSyncBot {
 	}
 
 	public function execute(): void {
+		$this->log( "\n" . 'Starting at ' . date( 'c' ) . "\n" );
 		$languages = $this->apiRequest( $this->apipath, [ 'action' => 'query', 'meta' => 'siteinfo', 'siprop' => 'languages' ] )['query']['languages'];
 
 		foreach ( $this->config['wikis'] as $wiki ) {
