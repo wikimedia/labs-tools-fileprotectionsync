@@ -22,6 +22,11 @@
         "targetpage": "Project:Auto-protected files/wiktionary/en"
     },
     {
+        "sourcewiki": "fa.wikipedia.org",
+        "sourcepages": ["صفحهٔ اصلی"],
+        "targetpage": "Project:Auto-protected files/wikipedia/fa"
+    },
+    {
         "sourcewiki": "fr.wikipedia.org",
         "sourcepages": ["Wikipédia:Accueil principal"],
         "targetpage": "Project:Auto-protected files/wikipedia/fr"
