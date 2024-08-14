@@ -1,6 +1,7 @@
 <?php
 namespace Krinkle\FileProtectionSync;
 
+use JsonException;
 use RuntimeException;
 use SensitiveParameter;
 use yaml_parse;
@@ -289,7 +290,12 @@ class FileProtectionSyncBot {
 	}
 
 	protected static function parseJSON( string $str ): array {
-		return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
+		try {
+			return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
+		} catch ( JsonException $e ) {
+			print '[ERROR] Invalid JSON `' . substr( $str, 0, 100 ) . '`' . "\n";
+			throw $e;
+		}
 	}
 
 	protected function log( string $str ): void {
