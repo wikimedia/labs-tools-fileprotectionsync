@@ -63,7 +63,7 @@ class FileProtectionSyncBot {
 	}
 
 	public function execute(): void {
-		$this->logInfo( "\n" . 'Starting at ' . date( 'c' ) . "\n" );
+		$this->logInfo( 'Starting' );
 		$languages = $this->apiRequest( $this->apipath, [ 'action' => 'query', 'meta' => 'siteinfo', 'siprop' => 'languages' ] )['query']['languages'];
 
 		foreach ( $this->config['wikis'] as $wiki ) {
@@ -96,7 +96,7 @@ class FileProtectionSyncBot {
 				// When this happens, sleep for a second, then try the next one. This way,
 				// rather than 1 readony eror skipping everything until the next scheduled run,
 				// we increase chances of at least a few happening in this round still.
-				self::logError( "[ERROR] Skipping [[{$wiki['targetpage']}]] due to $e" );
+				self::logError( "Skipping [[{$wiki['targetpage']}]] due to $e" );
 				sleep( 1 );
 			}
 		}
@@ -284,10 +284,10 @@ class FileProtectionSyncBot {
 			$this->debug( $resp );
 			$data = self::parseJSON( $resp );
 			foreach ( $data['warnings'] ?? [] as $entry ) {
-				self::logError( "[WARNING] API {$entry['code']}: {$entry['text']}" );
+				self::logError( "API Warning {$entry['code']}: {$entry['text']}" );
 			}
 			foreach ( $data['errors'] ?? [] as $entry ) {
-				self::logError( "[ERROR] API {$entry['code']}: {$entry['text']}" );
+				self::logError( "API Error {$entry['code']}: {$entry['text']}" );
 			}
 			$error = $data['errors'][0] ?? null;
 			if ( $error !== null ) {
@@ -303,24 +303,33 @@ class FileProtectionSyncBot {
 		try {
 			return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
 		} catch ( JsonException $e ) {
-			self::logError( '[ERROR] Invalid JSON `' . substr( $str, 0, 100 ) . '`' );
+			self::logError( 'Invalid JSON `' . substr( $str, 0, 100 ) . '`' );
 			throw $e;
 		}
 	}
 
 	protected static function logError( string $str ): void {
-		fwrite( STDERR, $str . "\n" );
+		fwrite( STDERR, sprintf( "[%s] ERROR:%s\n",
+			date( 'c' ),
+			$str
+		) );
 	}
 
 	protected function logInfo( string $str ): void {
 		if ( !$this->quiet ) {
-			print "$str\n";
+			print sprintf( "[%s] %s\n",
+				date( 'c' ),
+				$str
+			);
 		}
 	}
 
 	protected function debug( string $str ): void {
 		if ( $this->verbose ) {
-			print "[DEBUG] $str\n";
+			print sprintf( "[%s] DEBUG: %s\n",
+				date( 'c' ),
+				$str
+			);
 		}
 	}
 
