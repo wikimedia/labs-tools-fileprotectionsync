@@ -183,6 +183,6 @@ class FileProtectionSyncBotTest extends TestCase {
 			} );
 
 		$bot->execute();
-		$this->assertEquals( $expectedEdits, $edits, 'edits' );
+		$this->assertSame( $expectedEdits, $edits, 'edits' );
 	}
 }

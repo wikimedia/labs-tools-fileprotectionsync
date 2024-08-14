@@ -63,7 +63,7 @@ class FileProtectionSyncBot {
 	}
 
 	public function execute(): void {
-		$this->log( "\n" . 'Starting at ' . date( 'c' ) . "\n" );
+		$this->logInfo( "\n" . 'Starting at ' . date( 'c' ) . "\n" );
 		$languages = $this->apiRequest( $this->apipath, [ 'action' => 'query', 'meta' => 'siteinfo', 'siprop' => 'languages' ] )['query']['languages'];
 
 		foreach ( $this->config['wikis'] as $wiki ) {
@@ -88,7 +88,17 @@ class FileProtectionSyncBot {
 
 			$preamble = $this->buildWikitextPreamble( $wiki );
 			$text = $this->buildGalleryPage( $preamble, $images, $languages );
-			$this->edit( $wiki['targetpage'], $text, $this->config['editsummary'] );
+			try {
+				$this->edit( $wiki['targetpage'], $text, $this->config['editsummary'] );
+			} catch ( RuntimeException $e ) {
+				// Several times a day, commons.wikimedia.org/w/api.php refuses to save an edit
+				// because of "API Error: readonly: while the replica database servers catch up".
+				// When this happens, sleep for a second, then try the next one. This way,
+				// rather than 1 readony eror skipping everything until the next scheduled run,
+				// we increase chances of at least a few happening in this round still.
+				self::logError( "[ERROR] Skipping [[{$wiki['targetpage']}]] due to $e" );
+				sleep( 1 );
+			}
 		}
 
 		if ( !function_exists( 'yaml_parse' ) ) {
@@ -163,7 +173,7 @@ class FileProtectionSyncBot {
 
 	protected function getLogos(): array {
 		$url = 'https://noc.wikimedia.org/conf/logos-config.yaml';
-		$this->log( "Request $url" );
+		$this->logInfo( "Request $url" );
 		$yaml = file_get_contents( $url );
 		$data = yaml_parse( $yaml );
 		$logos = [];
@@ -248,7 +258,7 @@ class FileProtectionSyncBot {
 			'formatversion' => '2',
 			'errorformat' => 'plaintext',
 		] + $params;
-		$this->log( "Request $apipath?"
+		$this->logInfo( "Request $apipath?.."
 			. ( @$params['action'] ? "&action={$params['action']}" : '' )
 			. ( @$params['list'] ? "&list={$params['list']}" : '' )
 			. ( @$params['meta'] ? "&meta={$params['meta']}" : '' )
@@ -274,10 +284,10 @@ class FileProtectionSyncBot {
 			$this->debug( $resp );
 			$data = self::parseJSON( $resp );
 			foreach ( $data['warnings'] ?? [] as $entry ) {
-				$this->log( "[WARNING] API {$entry['code']}: {$entry['text']}" );
+				self::logError( "[WARNING] API {$entry['code']}: {$entry['text']}" );
 			}
 			foreach ( $data['errors'] ?? [] as $entry ) {
-				$this->log( "[ERROR] API {$entry['code']}: {$entry['text']}" );
+				self::logError( "[ERROR] API {$entry['code']}: {$entry['text']}" );
 			}
 			$error = $data['errors'][0] ?? null;
 			if ( $error !== null ) {
@@ -293,12 +303,16 @@ class FileProtectionSyncBot {
 		try {
 			return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
 		} catch ( JsonException $e ) {
-			print '[ERROR] Invalid JSON `' . substr( $str, 0, 100 ) . '`' . "\n";
+			self::logError( '[ERROR] Invalid JSON `' . substr( $str, 0, 100 ) . '`' );
 			throw $e;
 		}
 	}
 
-	protected function log( string $str ): void {
+	protected static function logError( string $str ): void {
+		fwrite( STDERR, $str . "\n" );
+	}
+
+	protected function logInfo( string $str ): void {
 		if ( !$this->quiet ) {
 			print "$str\n";
 		}
