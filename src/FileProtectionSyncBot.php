@@ -309,7 +309,7 @@ class FileProtectionSyncBot {
 	}
 
 	protected static function logError( string $str ): void {
-		fwrite( STDERR, sprintf( "[%s] ERROR:%s\n",
+		fwrite( STDERR, sprintf( "[%s] ERROR: %s\n",
 			date( 'c' ),
 			$str
 		) );
