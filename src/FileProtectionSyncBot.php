@@ -281,7 +281,14 @@ class FileProtectionSyncBot {
 			if ( $resp === false ) {
 				throw new RuntimeException( curl_error( $ch ) );
 			}
-			$this->debug( $resp );
+			$httpStatus = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+			$this->debug( 'HTTP response status='
+				. (string)$httpStatus
+				. ' body=' . substr( $resp, 0, 50 )
+			);
+			if ( $httpStatus !== 200 ) {
+				throw new RuntimeException( "Unexpected HTTP $httpStatus response" );
+			}
 			$data = self::parseJSON( $resp );
 			foreach ( $data['warnings'] ?? [] as $entry ) {
 				self::logError( "API Warning {$entry['code']}: {$entry['text']}" );
