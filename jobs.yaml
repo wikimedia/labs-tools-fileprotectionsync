@@ -1,6 +1,6 @@
 # https://wikitech.wikimedia.org/wiki/Help:Toolforge/Jobs_framework
 - name: fileprotectionsync
-  command: "src/fileprotectionsync/bin/fileprotectionsync --auth .fileprotectionsync.auth.json"
+  command: "timeout 9m src/fileprotectionsync/bin/fileprotectionsync --auth .fileprotectionsync.auth.json"
   image: php8.2
   schedule: "*/10 * * * *"
   emails: onfailure
