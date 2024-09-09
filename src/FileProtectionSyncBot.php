@@ -143,7 +143,7 @@ class FileProtectionSyncBot {
 			// https://commons.wikimedia.org/wiki/Commons:Project_scope/Allowable_file_types
 			if ( in_array( $ext, [
 				'ogv', 'webm', 'mpg', 'mpeg', 'ogg', 'oga',
-				'mid', 'flac', 'mp3', 'opus'
+				'mid', 'flac', 'mp3', 'opus', 'wav',
 			] ) ) {
 				$timedMedia[] = $image;
 			}
