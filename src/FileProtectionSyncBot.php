@@ -4,7 +4,7 @@ namespace Krinkle\FileProtectionSync;
 use JsonException;
 use RuntimeException;
 use SensitiveParameter;
-use yaml_parse;
+use function yaml_parse;
 
 class FileProtectionSyncBot {
 	/* Never protect these files. */
@@ -308,6 +308,7 @@ class FileProtectionSyncBot {
 
 	protected static function parseJSON( string $str ): array {
 		try {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentInternalProbablyReal - https://github.com/phan/phan/issues/4745
 			return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
 		} catch ( JsonException $e ) {
 			self::logError( 'Invalid JSON `' . substr( $str, 0, 100 ) . '`' );
