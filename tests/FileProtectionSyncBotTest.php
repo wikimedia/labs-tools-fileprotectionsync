@@ -46,15 +46,13 @@ class FileProtectionSyncBotTest extends TestCase {
 		$config = [
 			'editsummary' => 'Hello world',
 			'wikis' => [
-				[
+				'Project:Fileprotectionsync/en' => [
 					'sourcewiki' => 'en.test',
 					'sourcepages' => [ 'My Tomato', 'Wikipedia:Your/potato' ],
-					'targetpage' => 'Project:Fileprotectionsync/en',
 				],
-				[
+				'Project:Fileprotectionsync/de' => [
 					'sourcewiki' => 'de.test',
 					'sourcepages' => [ 'Meine Tomate' ],
-					'targetpage' => 'Project:Fileprotectionsync/de',
 				],
 			],
 		];

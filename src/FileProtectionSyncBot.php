@@ -66,7 +66,7 @@ class FileProtectionSyncBot {
 		$this->logInfo( 'Starting' );
 		$languages = $this->apiRequest( $this->apipath, [ 'action' => 'query', 'meta' => 'siteinfo', 'siprop' => 'languages' ] )['query']['languages'];
 
-		foreach ( $this->config['wikis'] as $wiki ) {
+		foreach ( $this->config['wikis'] as $targetpage => $wiki ) {
 			$apipath = sprintf( 'https://%s/w/api.php', $wiki['sourcewiki'] );
 			$data = $this->apiRequest( $apipath, [
 				'action' => 'query',
@@ -89,14 +89,14 @@ class FileProtectionSyncBot {
 			$preamble = $this->buildWikitextPreamble( $wiki );
 			$text = $this->buildGalleryPage( $preamble, $images, $languages );
 			try {
-				$this->edit( $wiki['targetpage'], $text, $this->config['editsummary'] );
+				$this->edit( $targetpage, $text, $this->config['editsummary'] );
 			} catch ( RuntimeException $e ) {
 				// Several times a day, commons.wikimedia.org/w/api.php refuses to save an edit
 				// because of "API Error: readonly: while the replica database servers catch up".
 				// When this happens, sleep for a second, then try the next one. This way,
 				// rather than 1 readony eror skipping everything until the next scheduled run,
 				// we increase chances of at least a few happening in this round still.
-				self::logError( "Skipping [[{$wiki['targetpage']}]] due to $e" );
+				self::logError( "Skipping [[{$targetpage}]] due to $e" );
 				sleep( 1 );
 			}
 		}
