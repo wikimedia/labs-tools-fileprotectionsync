@@ -276,39 +276,35 @@ class FileProtectionSyncBot {
 			CURLOPT_COOKIEJAR => $this->cookiejar,
 			CURLOPT_COOKIEFILE => $this->cookiejar,
 		] );
-		try {
-			$resp = curl_exec( $ch );
-			if ( $resp === false ) {
-				throw new RuntimeException( curl_error( $ch ) );
-			}
-			$httpStatus = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
-			$this->debug( 'HTTP response status='
-				. (string)$httpStatus
-				. ' body=' . substr( $resp, 0, 50 )
-			);
-			if ( $httpStatus !== 200 ) {
-				throw new RuntimeException( "Unexpected HTTP $httpStatus response" );
-			}
-			$data = self::parseJSON( $resp );
-			foreach ( $data['warnings'] ?? [] as $entry ) {
-				self::logError( "API Warning {$entry['code']}: {$entry['text']}" );
-			}
-			foreach ( $data['errors'] ?? [] as $entry ) {
-				self::logError( "API Error {$entry['code']}: {$entry['text']}" );
-			}
-			$error = $data['errors'][0] ?? null;
-			if ( $error !== null ) {
-				throw new RuntimeException( "API Error: {$error['code']}: {$error['text']}" );
-			}
-			return $data;
-		} finally {
-			curl_close( $ch );
+
+		$resp = curl_exec( $ch );
+		if ( $resp === false ) {
+			throw new RuntimeException( curl_error( $ch ) );
 		}
+		$httpStatus = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+		$this->debug( 'HTTP response status='
+			. (string)$httpStatus
+			. ' body=' . substr( $resp, 0, 50 )
+		);
+		if ( $httpStatus !== 200 ) {
+			throw new RuntimeException( "Unexpected HTTP $httpStatus response" );
+		}
+		$data = self::parseJSON( $resp );
+		foreach ( $data['warnings'] ?? [] as $entry ) {
+			self::logError( "API Warning {$entry['code']}: {$entry['text']}" );
+		}
+		foreach ( $data['errors'] ?? [] as $entry ) {
+			self::logError( "API Error {$entry['code']}: {$entry['text']}" );
+		}
+		$error = $data['errors'][0] ?? null;
+		if ( $error !== null ) {
+			throw new RuntimeException( "API Error: {$error['code']}: {$error['text']}" );
+		}
+		return $data;
 	}
 
 	protected static function parseJSON( string $str ): array {
 		try {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentInternalProbablyReal - https://github.com/phan/phan/issues/4745
 			return json_decode( $str, null, 512, JSON_OBJECT_AS_ARRAY | JSON_THROW_ON_ERROR );
 		} catch ( JsonException $e ) {
 			self::logError( 'Invalid JSON `' . substr( $str, 0, 100 ) . '`' );
