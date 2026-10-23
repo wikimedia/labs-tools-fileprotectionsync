@@ -6,7 +6,7 @@
 #
 - name: fileprotectionsync
   command: "src/fileprotectionsync/bin/fileprotectionsync --auth .fileprotectionsync.auth.json"
-  image: php8.2
+  image: php8.4
   schedule: "*/10 * * * *"
   emails: onfailure
   timeout: 540  # 9m in seconds
